@@ -187,7 +187,7 @@ MessageResponse response = service.message("Your Workspace Id", newMessage).exec
 
 ## Enable Text to Speech 
 
-* Create a Watson Text to Speech(TTS) service on [Bluemix](https://console.ng.bluemix.net/catalog/services/text-to-speech/?taxonomyNavigation=apps) 
+* Create a Watson Text-to-Speech(TTS) service on [Bluemix](https://console.ng.bluemix.net/catalog/services/text-to-speech/?taxonomyNavigation=apps) 
 * Navigate to Service Credentials tab and click on "View Credentials".
 
 On Line 68 of MainActivity.java, replace the username and password placeholders with the TTS service credentials
@@ -202,7 +202,25 @@ Now when you TAP on any message, the text will be heard via a Voice (Voice.EN_LI
 <strong>Note: </strong> The required gradle entries for TTS is already included in the build.gradle file 
 ```
 compile 'com.ibm.watson.developer_cloud:text-to-speech:3.5.3'
-compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.1'
+compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.3'
+```
+
+## Enable Speech to Text 
+
+* Create a Watson [Speech-to-Text(STT)]((https://console.ng.bluemix.net/catalog/services/speech-to-text/?taxonomyNavigation=apps) ) Service on Bluemix.
+
+* Navigate to Service Credentials tab and click on "View Credentials".
+On line 260 of MainActivity.java, replace the username and password placeholders with STT credentials
+
+```
+speechService = new SpeechToText();
+speechService.setUsernameAndPassword("<username>", "<password>");
+```
+
+Gradle entries 
+```
+ compile 'com.ibm.watson.developer_cloud:speech-to-text:3.5.3'
+ compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.3'
 ```
 
 ### Chat with your own WatBot 
