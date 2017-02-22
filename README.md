@@ -187,7 +187,7 @@ MessageResponse response = service.message("Your Workspace Id", newMessage).exec
 
 ## Enable Text to Speech 
 
-* Create a Watson Text-to-Speech(TTS) service on [Bluemix](https://console.ng.bluemix.net/catalog/services/text-to-speech/?taxonomyNavigation=apps) 
+* Create a Watson [Text-to-Speech(TTS)](https://console.ng.bluemix.net/catalog/services/text-to-speech/?taxonomyNavigation=apps) service on Bluemix, IBM Cloud.
 * Navigate to Service Credentials tab and click on "View Credentials".
 
 On Line 68 of MainActivity.java, replace the username and password placeholders with the TTS service credentials
@@ -207,7 +207,7 @@ compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.3'
 
 ## Enable Speech to Text 
 
-* Create a Watson [Speech-to-Text(STT)]((https://console.ng.bluemix.net/catalog/services/speech-to-text/?taxonomyNavigation=apps) ) Service on Bluemix.
+* Create a Watson [Speech-to-Text(STT)](https://console.ng.bluemix.net/catalog/services/speech-to-text/?taxonomyNavigation=apps) Service on Bluemix, IBM Cloud.
 
 * Navigate to Service Credentials tab and click on "View Credentials".
 On line 260 of MainActivity.java, replace the username and password placeholders with STT credentials
