@@ -223,6 +223,11 @@ Gradle entries
  compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.3'
 ```
 
+Manifest entry 
+```
+ <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+```
+
 ### Chat with your own WatBot 
 
 If you have followed all the above instructions, you should be happily chatting with your Wat(son)Bot. 
