@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.gson.JsonParser;
 import com.ibm.watson.developer_cloud.android.library.audio.MicrophoneInputStream;
 import com.ibm.watson.developer_cloud.android.library.audio.StreamPlayer;
 import com.ibm.watson.developer_cloud.android.library.audio.utils.ContentType;
@@ -35,9 +36,19 @@ import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeC
 import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.RecognizeCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
+import com.worklight.wlclient.api.WLClient;
+import com.worklight.wlclient.api.WLFailResponse;
+import com.worklight.wlclient.api.WLResourceRequest;
+import com.worklight.wlclient.api.WLResponse;
+import com.worklight.wlclient.api.WLResponseListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,10 +75,16 @@ public class MainActivity extends AppCompatActivity {
     private MicrophoneInputStream capture;
 
 
+    private  WLClient wlc = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //MFP connection object
+        WLClient.createInstance(this);
+        wlc = WLClient.getInstance();
+
 
         inputMessage = (EditText) findViewById(R.id.message);
         btnSend = (ImageButton) findViewById(R.id.btn_send);
@@ -85,13 +102,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-        this.inputMessage.setText("");
+        this.inputMessage.setText("Hi");
         this.initialRequest = true;
-        sendMessage();
+        //sendMessage();
+        sendMessageViaAdapter();
 
         //Watson Text-to-Speech Service on Bluemix
         final TextToSpeech service = new TextToSpeech();
-        service.setUsernameAndPassword("<text-to-speech username>", "text-to-speech password>");
+        service.setUsernameAndPassword("8eafcaea-919b-41e0-b052-304eab1f6dd4", "xEglg3uWozfm");
 
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO);
@@ -137,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkInternetConnection()) {
-                    sendMessage();
+                    //sendMessage();
+                    sendMessageViaAdapter();
                 }
             }
         });
@@ -180,6 +199,130 @@ public class MainActivity extends AppCompatActivity {
                 RECORD_REQUEST_CODE);
     }
 
+    private void sendMessageViaAdapter()
+    {
+        final String inputmessage = this.inputMessage.getText().toString().trim();
+        if(!this.initialRequest) {
+            Message inputMessage = new Message();
+            inputMessage.setMessage(inputmessage);
+            inputMessage.setId("1");
+            messageArrayList.add(inputMessage);
+        }
+        else
+        {
+            Message inputMessage = new Message();
+            inputMessage.setMessage(inputmessage);
+            inputMessage.setId("100");
+            this.initialRequest = false;
+            //Toast.makeText(getApplicationContext(),"Tap on the message for Voice",Toast.LENGTH_LONG).show();
+
+        }
+
+        this.inputMessage.setText("");
+        mAdapter.notifyDataSetChanged();
+
+        Thread thread = new Thread(new Runnable(){
+            public void run() {
+                try {
+
+
+                    MessageRequest newMessage = new MessageRequest.Builder().inputText(inputmessage).context(context).build();
+                    URI adapterPath = URI.create("/adapters/watsonConversationAdapterNew/v1/workspaces/e5ea7a74-2151-4e07-9098-d949b6dd263f/message");
+                    WLResourceRequest wlResourceRequest = new WLResourceRequest(adapterPath,WLResourceRequest.POST);
+                    String message = "{\"input\": {\"text\":\""+inputmessage+"\"}, \"context\":null,\"entities\" :null}";
+
+
+                    JSONObject messageJSON = (JSONObject) new JSONTokener(message).nextValue();
+
+
+
+                    wlResourceRequest.send(messageJSON,new WLResponseListener()
+                    {
+                        public void onSuccess(WLResponse response) {
+                            JSONObject returnMessage = null;
+                            Message outMessage=new Message();
+                            Log.d("Success", response.getResponseText());
+                            try
+                            {
+                                 returnMessage = (JSONObject) new JSONTokener(response.getResponseText()).nextValue();
+                                //String outputMessage =  ((JSONObject)(returnMessage.get("output"))).get("text").toString();
+                                if(returnMessage !=null)
+                                {
+                                    String outputmessage = ((JSONObject)returnMessage.get("output")).get("text").toString().replace("[\"","").replace("\"]","");
+                                    outMessage.setMessage(outputmessage);
+                                    outMessage.setId("2");
+                                    messageArrayList.add(outMessage);
+
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            mAdapter.notifyDataSetChanged();
+                                            if (mAdapter.getItemCount() > 1) {
+                                                recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount()-1);
+
+                                            }
+
+                                        }
+                                    });
+                                }
+
+                            }
+                            catch (JSONException ex)
+                            {
+
+                            }
+
+
+                        }
+                        public void onFailure(WLFailResponse response) {
+                            Log.d("Failure", response.getResponseText());
+                        }
+
+                    });
+
+
+
+                    /*
+                    //Passing Context of last conversation
+                    if(response.getContext() !=null)
+                    {
+                        context.clear();
+                        context = response.getContext();
+
+                    }
+                    Message outMessage=new Message();
+                    if(response!=null)
+                    {
+                        if(response.getOutput()!=null && response.getOutput().containsKey("text"))
+                        {
+
+                            final String outputmessage = response.getOutput().get("text").toString().replace("[","").replace("]","");
+                            outMessage.setMessage(outputmessage);
+                            outMessage.setId("2");
+                            messageArrayList.add(outMessage);
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                mAdapter.notifyDataSetChanged();
+                                if (mAdapter.getItemCount() > 1) {
+                                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount()-1);
+
+                                }
+
+                            }
+                        });
+
+
+                    } */
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+
+    }
     // Sending a message to Watson Conversation Service
     private void sendMessage() {
 
@@ -208,9 +351,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
         ConversationService service = new ConversationService(ConversationService.VERSION_DATE_2016_09_20);
-        service.setUsernameAndPassword("<conversation username>", "<conversation password>");
+        service.setUsernameAndPassword("8eafcaea-919b-41e0-b052-304eab1f6dd4", "xEglg3uWozfm");
         MessageRequest newMessage = new MessageRequest.Builder().inputText(inputmessage).context(context).build();
-        MessageResponse response = service.message("<conversation workspaceid>", newMessage).execute();
+        MessageResponse response = service.message("a75d0b91-ae83-40ca-a8b8-fc3fe0308b7e", newMessage).execute();
 
                     //Passing Context of last conversation
                 if(response.getContext() !=null)
