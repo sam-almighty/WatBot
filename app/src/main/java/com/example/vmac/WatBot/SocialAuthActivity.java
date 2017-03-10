@@ -135,7 +135,7 @@ public class SocialAuthActivity extends AppCompatActivity implements
      * The adapter returns display name and user attributes in JSON format
      */
     private void callProtectedAdapter() {
-        WLResourceRequest wlResourceRequest = new WLResourceRequest(URI.create("/adapters/HelloSocialUser/hello"), WLResourceRequest.GET,SocialMainActivity.SOCIAL_LOGIN_SCOPE);
+        WLResourceRequest wlResourceRequest = new WLResourceRequest(URI.create("/adapters/HelloSocialUser/hello"), WLResourceRequest.GET,"accessRestricted");
         wlResourceRequest.send(new WLResponseListener() {
             @Override
             public void onSuccess(WLResponse wlResponse) {

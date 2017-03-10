@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="ibmmobilefirstplatformfoundationliveupdate-8.0.0">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.ibm.mobile.foundation/ibmmobilefirstplatformfoundationliveupdate/8.0.0/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.ibm.mobile.foundation/ibmmobilefirstplatformfoundationliveupdate/8.0.0/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.ibm.mobile.foundation/ibmmobilefirstplatformfoundationliveupdate/8.0.0/a68f38f4b86a990f053f6cc0f9221e42e6875d9a/ibmmobilefirstplatformfoundationliveupdate-8.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

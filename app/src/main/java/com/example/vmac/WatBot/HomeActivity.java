@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.ibm.WatBot.R;
+import com.worklight.ibmmobilefirstplatformfoundationliveupdate.LiveUpdateManager;
+import com.worklight.ibmmobilefirstplatformfoundationliveupdate.api.ConfigurationListener;
 import com.worklight.jsonstore.api.JSONStoreAddOptions;
 import com.worklight.jsonstore.api.JSONStoreCollection;
 import com.worklight.jsonstore.api.JSONStoreInitOptions;
@@ -58,17 +60,27 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         listView.setAdapter(adapter);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton callfab = (FloatingActionButton) findViewById(R.id.fabcall);
 
-        if (displayChatIcon) {
-            fab.setVisibility(View.VISIBLE);
-            callfab.setVisibility(View.GONE);
-        } else {
-            fab.setVisibility(View.GONE);
-            callfab.setVisibility(View.VISIBLE);
-        }
+        LiveUpdateManager.getInstance().obtainConfiguration("com.acme.chat.testusers", new ConfigurationListener() {
+
+            @Override
+            public void onSuccess(com.worklight.ibmmobilefirstplatformfoundationliveupdate.api.Configuration configuration) {
+               if(configuration.isFeatureEnabled("com.acme.chat")){
+                   fab.setVisibility(View.VISIBLE);
+               }else{
+                    fab.setVisibility(View.GONE);
+               }
+
+            }
+
+            @Override
+            public void onFailure(WLFailResponse wlFailResponse) {
+                fab.setVisibility(View.GONE);
+            }
+        });
+
         try {
 
             List<JSONStoreCollection> collections = new LinkedList<JSONStoreCollection>();
