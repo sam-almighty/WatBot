@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "112086923086",
+    "project_id": "agent-a19d3"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112086923086:android:eb49c4a7b337df59",
+        "android_client_info": {
+          "package_name": "com.ibm.WatBot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "112086923086-uto4cdp4otmi65ag0q2barllr3a8fq2h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibm.WatBot",
+            "certificate_hash": "ce89cd41942e08eda3cbc5be1e94bb38b0329b73"
+          }
+        },
+        {
+          "client_id": "112086923086-g57te6akncb51mofkp5j776cfi6ds1os.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj5CUlwoxPo7ZW9Yxp1GWook1WQW-Aiqo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

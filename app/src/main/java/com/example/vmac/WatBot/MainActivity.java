@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -21,18 +20,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.gson.JsonParser;
+import com.ibm.WatBot.R;
 import com.ibm.watson.developer_cloud.android.library.audio.MicrophoneInputStream;
 import com.ibm.watson.developer_cloud.android.library.audio.StreamPlayer;
 import com.ibm.watson.developer_cloud.android.library.audio.utils.ContentType;
 import com.ibm.watson.developer_cloud.conversation.v1.ConversationService;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageRequest;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.http.HttpMediaType;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeCallback;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.RecognizeCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
@@ -42,12 +39,11 @@ import com.worklight.wlclient.api.WLResourceRequest;
 import com.worklight.wlclient.api.WLResponse;
 import com.worklight.wlclient.api.WLResponseListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean listening = false;
     private SpeechToText speechService;
     private MicrophoneInputStream capture;
+    private String chatContext=null;
 
 
     private  WLClient wlc = null;
@@ -202,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessageViaAdapter()
     {
         final String inputmessage = this.inputMessage.getText().toString().trim();
-        if(!this.initialRequest) {
+        if(!this.initialRequest && inputmessage.length()>0) {
             Message inputMessage = new Message();
             inputMessage.setMessage(inputmessage);
             inputMessage.setId("1");
@@ -229,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                     MessageRequest newMessage = new MessageRequest.Builder().inputText(inputmessage).context(context).build();
                     URI adapterPath = URI.create("/adapters/watsonConversationAdapterNew/v1/workspaces/e5ea7a74-2151-4e07-9098-d949b6dd263f/message");
                     WLResourceRequest wlResourceRequest = new WLResourceRequest(adapterPath,WLResourceRequest.POST);
-                    String message = "{\"input\": {\"text\":\""+inputmessage+"\"}, \"context\":null,\"entities\" :null}";
+                    String message = "{\"input\": {\"text\":\""+inputmessage+"\"}, \"context\":"+chatContext+",\"entities\" :null}";
 
 
                     JSONObject messageJSON = (JSONObject) new JSONTokener(message).nextValue();
@@ -248,8 +245,16 @@ public class MainActivity extends AppCompatActivity {
                                 //String outputMessage =  ((JSONObject)(returnMessage.get("output"))).get("text").toString();
                                 if(returnMessage !=null)
                                 {
-                                    String outputmessage = ((JSONObject)returnMessage.get("output")).get("text").toString().replace("[\"","").replace("\"]","");
-                                    outMessage.setMessage(outputmessage);
+                                   // String outputmessage = ((JSONObject)returnMessage.get("output")).get("text").toString().replace("[\"","").replace("\"]",""); String outputmessage = ((JSONObject)returnMessage.get("output")).get("text").toString().replace("[\"","").replace("\"]","");
+                                    JSONObject jsonObject = (JSONObject)returnMessage.get("output");
+                                    JSONArray jsonArray = (JSONArray) jsonObject.get("text");
+                                    String outputMessage ="";
+                                    if(jsonArray!=null && jsonArray.length()>0){
+                                        outputMessage = jsonArray.get(0).toString();
+                                    }
+
+                                    chatContext = ((JSONObject)returnMessage.get("context")).toString();
+                                    outMessage.setMessage(outputMessage);
                                     outMessage.setId("2");
                                     messageArrayList.add(outMessage);
 

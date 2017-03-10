@@ -1,4 +1,18 @@
 <resources>
-    <string name="app_name">WatBot</string>
+    <string name="app_name">Agent</string>
     <string name="what_s_on_your_mind">What\'s on your mind?</string>
+    <string name="title_activity_home">Job List</string>
+    <string name="call_adapter">Call Protected Adapter</string>
+
+    <string name="google_signin">Login To View Jobs</string>
+
+
+    <string name="facebook_signin">Sign In With Facebook</string>
+
+    <string name="facebook_app_id">Put your Facebook app id here</string>
+    <string name="google_server_client_id">112086923086-bktk51daip6hb5ndnoi7sqjrrhoemfii.apps.googleusercontent.com</string>
+    <!-- Button text -->
+    <string name="btn_logout_from_google">Logout from Google</string>
+    <string name="btn_revoke_access">Proceed To Jobs</string>
+    <string name="loading">Loading...</string>
 </resources>

@@ -4,12 +4,13 @@ package com.example.vmac.WatBot;
  * Created by VMac on 17/11/16.
  */
 
-import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.ibm.WatBot.R;
 
 import java.util.ArrayList;
 
