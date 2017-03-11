@@ -65,7 +65,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton callfab = (FloatingActionButton) findViewById(R.id.fabcall);
-        callfab.setVisibility(View.GONE);
+       // callfab.setVisibility(View.GONE);
 
         LiveUpdateManager.getInstance().obtainConfiguration("com.acme.chat.testusers",false, new ConfigurationListener() {
 

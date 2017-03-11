@@ -23,28 +23,37 @@
 
     <include layout="@layout/content_home" />
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_height="wrap_content">
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
-        android:layout_above="@+id/fabcall"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:layout_gravity="bottom|end"
         app:backgroundTint="@color/colorPrimary"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_chat_white_48dp" />
+
+    <View
+        android:id="@+id/dummy"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        app:layout_anchor="@id/fab"
+        app:layout_anchorGravity="top|right|end" />
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabcall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="end|top"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_call_white_48dp" />
-    </RelativeLayout>
+        android:src="@drawable/ic_call_white_48dp"
+        app:layout_anchor="@id/dummy"
+        app:layout_anchorGravity="top|right|end"/>
+
 
 </android.support.design.widget.CoordinatorLayout>
