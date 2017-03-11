@@ -22,7 +22,6 @@
         <activity
             android:name="com.example.vmac.WatBot.MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.example.vmac.WatBot.SocialMainActivity" />
         <activity
             android:name="com.example.vmac.WatBot.SplashActivity"
             android:screenOrientation="portrait"
@@ -39,10 +38,6 @@
             android:name="com.example.vmac.WatBot.HomeActivity"
             android:label="@string/title_activity_home" />
         <activity android:name="com.example.vmac.WatBot.SocialAuthActivity" />
-        <activity android:name="com.example.vmac.WatBot.Login" />
-        <activity android:name="com.example.vmac.WatBot.SimpleTabsActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            ></activity>
     </application>
 
 </manifest>

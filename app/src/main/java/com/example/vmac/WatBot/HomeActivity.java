@@ -45,6 +45,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean displayChatIcon=true;
     private static final String JOBS_COLLECTION_NAME = "printerjobs";
     private static final String DEFAULT_USER = "jsonstore";
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressDialog mProgressDialog;
     private JSONStoreCollection jobs;
@@ -57,27 +58,48 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         user_id = bundle.getString("user_id");
         listView = (ListView) findViewById(R.id.list);
         adapter = new CustomListAdapter(this, movieList);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
         listView.setAdapter(adapter);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton callfab = (FloatingActionButton) findViewById(R.id.fabcall);
+        callfab.setVisibility(View.GONE);
 
-        LiveUpdateManager.getInstance().obtainConfiguration("com.acme.chat.testusers", new ConfigurationListener() {
+        LiveUpdateManager.getInstance().obtainConfiguration("com.acme.chat.testusers",false, new ConfigurationListener() {
 
             @Override
             public void onSuccess(com.worklight.ibmmobilefirstplatformfoundationliveupdate.api.Configuration configuration) {
                if(configuration.isFeatureEnabled("com.acme.chat")){
-                   fab.setVisibility(View.VISIBLE);
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           fab.setVisibility(View.VISIBLE);
+                       }
+                   });
+
                }else{
-                    fab.setVisibility(View.GONE);
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           fab.setVisibility(View.GONE);
+                       }
+                   });
+
                }
 
             }
 
             @Override
             public void onFailure(WLFailResponse wlFailResponse) {
-                fab.setVisibility(View.GONE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fab.setVisibility(View.GONE);
+                    }
+                });
+
             }
         });
 
@@ -93,15 +115,6 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
             WLJSONStore.getInstance(this).openCollections(collections, initOptions);
         } catch (final Exception e) {
             Log.e("JobsError",e.getMessage());
-        }
-
-        try {
-            showProgressDialog();
-            WLResourceRequest request = new WLResourceRequest(new URI("/adapters/JSONStoreAdapter/getPeople"), WLResourceRequest.GET);
-            request.send(responseListener);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            // handle error
         }
 
 
@@ -131,14 +144,31 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 startActivity(intent);
             }
         });
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+
+                fetchJobs();
+            }
+        });
+
     }
+
 
     private   WLResponseListener responseListener = new WLResponseListener() {
         @Override
         public void onFailure(final WLFailResponse response) {
             // handle failure
             Log.e("JobsError", response.getErrorMsg());
-            hideProgressDialog();
+            swipeRefreshLayout.setRefreshing(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hideProgressDialog();
+                }
+            });
+
         }
 
         @Override
@@ -153,6 +183,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
                     public void run() {
                         populateListItems(loadedDocuments);
                         adapter.notifyDataSetInvalidated();
+                        swipeRefreshLayout.setRefreshing(false);
                         hideProgressDialog();
                     }
                 });
@@ -164,6 +195,21 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         }
     };
+
+
+    private void fetchJobs(){
+        swipeRefreshLayout.setRefreshing(true);
+        try {
+           // showProgressDialog();
+            WLResourceRequest request = new WLResourceRequest(new URI("/adapters/JSONStoreAdapter/getPeople"), WLResourceRequest.GET);
+            request.send(responseListener);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            // handle error
+        }
+    }
+
+
     private void populateListItems(JSONArray loadedDocuments){
         JSONStoreAddOptions options = new JSONStoreAddOptions();
         options.setMarkDirty(true);
@@ -183,41 +229,6 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
            Log.e("JSONStore",e.getMessage());
         }
 
-
-       /* Insurance insurance = new Insurance();
-        insurance.setPolicyNumber("Acme LaserJet 400 M401");
-        insurance.setStartDate("Repair");
-        insurance.setEndDate("Paper load error");
-        insurance.setTypeOfPolicy("2050 Bamako Place, WA 20521-2050");
-        movieList.add(insurance);
-
-        Insurance insurance1 = new Insurance();
-        insurance1.setPolicyNumber("Acme Aficio CL3500N PS");
-        insurance1.setStartDate("Maintenance");
-        insurance1.setEndDate("Regular AMC service");
-        insurance1.setTypeOfPolicy("7100 Athens Place, WA 20521-7100");
-        movieList.add(insurance1);
-
-        Insurance insurance2 = new Insurance();
-        insurance2.setPolicyNumber("Acme Color LaserJet 3800");
-        insurance2.setStartDate("General Service");
-        insurance2.setEndDate("Monthly service");
-        insurance2.setTypeOfPolicy("8400 London Place, WA 20521-8400");
-        movieList.add(insurance2);
-
-        Insurance insurance3 = new Insurance();
-        insurance3.setPolicyNumber("Acme LaserJet 7200 Series");
-        insurance3.setStartDate("Repair");
-        insurance3.setEndDate("Power issues");
-        insurance3.setTypeOfPolicy("5520 Quebec Place, WA 20521-5520");
-        movieList.add(insurance3);
-
-        Insurance insurance4 = new Insurance();
-        insurance4.setPolicyNumber("Acme LaserJet 400 M401");
-        insurance4.setStartDate("General Service");
-        insurance4.setEndDate("Regular servicing");
-        insurance4.setTypeOfPolicy("6170 Peshwar Place, WA 20521-6170");
-        movieList.add(insurance4);*/
     }
 
     private String getJsonString(){
@@ -253,13 +264,19 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage(getString(R.string.loading));
-            mProgressDialog.setIndeterminate(true);
-        }
+        mProgressDialog = new ProgressDialog(this);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mProgressDialog == null) {
 
-        mProgressDialog.show();
+                    mProgressDialog.setMessage(getString(R.string.loading));
+                    mProgressDialog.setIndeterminate(true);
+                }
+
+                mProgressDialog.show();
+            }
+        });
     }
 
     private void hideProgressDialog() {
@@ -270,6 +287,6 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-
+        fetchJobs();
     }
 }

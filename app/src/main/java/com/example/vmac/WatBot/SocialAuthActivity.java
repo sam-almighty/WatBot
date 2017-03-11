@@ -58,6 +58,7 @@ public class SocialAuthActivity extends AppCompatActivity implements
     //Flag to know from where we signInWithGoogle
     protected boolean isSignInFromChallenge = false;
     protected SocialAuthActivity.Vendor currentVendor = SocialAuthActivity.Vendor.GOOGLE;
+    public static final String SOCIAL_LOGIN_SCOPE = "accessRestricted";
 
     //Vendor enum
     protected enum Vendor {
