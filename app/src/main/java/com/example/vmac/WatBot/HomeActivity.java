@@ -23,6 +23,8 @@ import com.worklight.jsonstore.api.JSONStoreCollection;
 import com.worklight.jsonstore.api.JSONStoreInitOptions;
 import com.worklight.jsonstore.api.WLJSONStore;
 import com.worklight.jsonstore.database.SearchFieldType;
+import com.worklight.jsonstore.exceptions.JSONStoreAddException;
+import com.worklight.jsonstore.exceptions.JSONStoreDatabaseClosedException;
 import com.worklight.wlclient.api.WLFailResponse;
 import com.worklight.wlclient.api.WLResourceRequest;
 import com.worklight.wlclient.api.WLResponse;
@@ -184,10 +186,11 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         public void onFailure(final WLFailResponse response) {
             // handle failure
             Log.e("JobsError", response.getErrorMsg());
-            swipeRefreshLayout.setRefreshing(false);
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    swipeRefreshLayout.setRefreshing(false);
                     hideProgressDialog();
                 }
             });
@@ -197,17 +200,24 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         @Override
         public void onSuccess(WLResponse response) {
             try {
-                JSONObject responseJson = new JSONObject(response.getResponseText());
-                String joblist= responseJson.getString("joblist");
-                final JSONArray loadedDocuments = new JSONArray(joblist);
+               // JSONObject responseJson = new JSONObject(response.getResponseText());
+               // String joblist= responseJson.getString("joblist");
+                final JSONArray loadedDocuments = new JSONArray(response.getResponseText());
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        populateListItems(loadedDocuments);
-                        adapter.notifyDataSetInvalidated();
-                        swipeRefreshLayout.setRefreshing(false);
-                        hideProgressDialog();
+                        try{
+                            populateListItems(loadedDocuments);
+                            adapter.notifyDataSetInvalidated();
+
+                            hideProgressDialog();
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }finally {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+
                     }
                 });
 
@@ -224,7 +234,8 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setRefreshing(true);
         try {
            // showProgressDialog();
-            WLResourceRequest request = new WLResourceRequest(new URI("/adapters/JSONStoreAdapter/getPeople"), WLResourceRequest.GET);
+            WLResourceRequest request = new WLResourceRequest(new URI("/adapters/CloudantJava/"), WLResourceRequest.GET);
+          //  WLResourceRequest request = new WLResourceRequest(new URI("/adapters/JSONStoreAdapter/getPeople"), WLResourceRequest.GET);
             request.send(responseListener);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -233,10 +244,11 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
 
-    private void populateListItems(JSONArray loadedDocuments){
+    private void populateListItems(JSONArray loadedDocuments) throws JSONException, JSONStoreAddException, JSONStoreDatabaseClosedException {
+        movieList.clear();
         JSONStoreAddOptions options = new JSONStoreAddOptions();
         options.setMarkDirty(true);
-        try {
+
             for(int index=0;index<loadedDocuments.length();index++){
                 Jobs jobObject = new Jobs();
                 JSONObject jsonObject = (JSONObject) loadedDocuments.get(index);
@@ -248,9 +260,7 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
                 movieList.add(jobObject);
             }
 
-        } catch (Exception e) {
-           Log.e("JSONStore",e.getMessage());
-        }
+
 
     }
 
