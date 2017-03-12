@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.ibm.WatBot.R;
+import com.worklight.common.WLAnalytics;
 import com.worklight.ibmmobilefirstplatformfoundationliveupdate.LiveUpdateManager;
 import com.worklight.ibmmobilefirstplatformfoundationliveupdate.api.ConfigurationListener;
 import com.worklight.jsonstore.api.JSONStoreAddOptions;
@@ -28,6 +29,7 @@ import com.worklight.wlclient.api.WLResponse;
 import com.worklight.wlclient.api.WLResponseListener;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -133,6 +135,16 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
                     // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("Helpline usage", "Phone");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                WLAnalytics.log("HelplineCalled", json);
+                Log.i("WatBotAnalytics","Helpline Called ");
                 startActivity(intent);
             }
         });
@@ -140,6 +152,17 @@ public class HomeActivity extends AppCompatActivity implements SwipeRefreshLayou
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("Helpline usage", "Watson Chat");
+                   // json.put("Watson Chat Clicked", "1");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                WLAnalytics.log("WatBotMessage", json);
+                Log.i("WatBotAnalytics","Chat clicked ");
                 Intent intent = new Intent(HomeActivity.this, MainActivity.class);
                 startActivity(intent);
             }

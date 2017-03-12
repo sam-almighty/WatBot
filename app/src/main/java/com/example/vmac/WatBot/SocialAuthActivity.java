@@ -25,6 +25,7 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.ibm.WatBot.R;
+import com.worklight.common.WLAnalytics;
 import com.worklight.wlclient.api.WLAuthorizationManager;
 import com.worklight.wlclient.api.WLClient;
 import com.worklight.wlclient.api.WLFailResponse;
@@ -117,6 +118,9 @@ public class SocialAuthActivity extends AppCompatActivity implements
 
         //Init WLClient
         WLClient.createInstance(this);
+        WLAnalytics.init(this.getApplication());
+        WLAnalytics.enable();
+        WLAnalytics.addDeviceEventListener(WLAnalytics.DeviceEvent.LIFECYCLE);
         socialLoginChallengeHandler = new SocialLoginChallengeHandler("socialLogin", this);
 
         //Register the SocialLoginChallengeHandler
